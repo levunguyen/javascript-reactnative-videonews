@@ -5,49 +5,37 @@
  */
 
 import React, { Component } from 'react';
+import styles from  './style';
 import {
   AppRegistry,
-  StyleSheet,
   Text,
-  View
+  View,
+  StatusBar
 } from 'react-native';
 
 export default class AwesomeProject extends Component {
+
   render() {
+    console.log("aaa"+JSON.stringify(styles.global));
+    console.log("aaa"+JSON.stringify(styles.global.default.mainContainer));
+
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-            Hello World
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          ok
-        </Text>
+
+      <View style={styles.global.default.mainContainer}>
+        <View style={styles.navbar.default.appearence}>
+
+            <Text style={styles.navbar.default.title}> iTunes Broswer </Text>
+            <Text style={styles.navbar.default.button}>Search </Text>
+        </View>
+
+        <View style={styles.global.default.content}>
+            <Text>Sample xfdsfsfsfsd</Text>
+
+        </View>
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
 
 AppRegistry.registerComponent('AwesomeProject', () => AwesomeProject);
