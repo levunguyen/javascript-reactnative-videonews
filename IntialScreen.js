@@ -11,8 +11,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 
-import TimerMixin from 'react-timer-mixin';
-import RefreshInfiniteListView from '@remobile/react-native-refresh-infinite-listview';
+import InfiniteScrollView from 'react-native-infinite-scroll-view';
 
 export default class InitialScreen extends Component {
 
@@ -23,7 +22,8 @@ export default class InitialScreen extends Component {
       isLoading : true,
       dataSource : new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2
-      })
+      }),
+      canLoadMoreContent : true
     };
   };
 
@@ -38,16 +38,15 @@ export default class InitialScreen extends Component {
         this.setState({
           isLoading : false,
           dataSource : this.state.dataSource.cloneWithRows(feeds)
+
         });
       }).done();
   };
 
-  onRefresh() {
-        this.fetchData;
-      /*  this.setTimeout(()=>{
-            this.list.hideHeader();
-        }, 1000); */
-  };
+  loadMoreContentAsync = async () => {
+   console.log("here");
+   
+ }
 
   genRows(pressData: {[key: number]: boolean}): Array<string> {
     let data = [];
@@ -93,16 +92,6 @@ export default class InitialScreen extends Component {
   };
 
 
-  onInfinite() {
-          this.fetchData();
-        this.setTimeout(()=>{
-            this.list.hideFooter();
-
-        }, 1000);
-  };
-  loadedAllData() {
-      return this.data.index >= this.data.maxIndex||this.data.index===0;
-  };
 
   render() {
     const rightButtonConfig = {
@@ -117,34 +106,13 @@ export default class InitialScreen extends Component {
     };
 
     return (
-  /*    <View style={{ flex: 1, backgroundColor: '#ff9900', }}>
-        <NavigationBar
-          title={{ title: 'Title', }}
-          rightButton={rightButtonConfig} />
-      /*  <ListView
-          dataSource={this.state.dataSource}
-          renderRow={(this.renderRow.bind(this))}
-          renderSeparator={this.renderSeparator}
-        /> */
-
-        <View style={{flex:1}}>
-                <View style={{height:20}} />
-                <RefreshInfiniteListView
-                    ref = {(list) => {this.list= list}}
-                    dataSource={this.state.dataSource}
-                    renderRow={this.renderRow}
-                    renderSeparator={this.renderSeparator}
-                    loadedAllData={this.loadedAllData}
-                    initialListSize={30}
-                    scrollEventThrottle={10}
-                    style={{backgroundColor:'transparent'/*,top:100, left:10, width:200, height:300, position:'absolute'*/}}
-                    onRefresh = {this.onRefresh}
-                    onInfinite = {this.onInfinite}
-                    >
-                </RefreshInfiniteListView>
-        </View>
-
-    /*  </View>*/
+      <ListView
+             renderScrollComponent={props => <InfiniteScrollView {...props} />}
+             dataSource={this.state.dataSource}
+             renderRow={this.renderRow}
+             canLoadMore={this.state.canLoadMoreContent}
+             onLoadMoreAsync={this.loadMoreContentAsync}
+           />
     );
   }
 }
