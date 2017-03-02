@@ -17,36 +17,33 @@ export default class InitialScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.fetchData();
+
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    let feeds = [
+     'John', 'Joel', 'James', 'Jimmy', 'Jackson', 'Jillian', 'Julie', 'Devin',
+     'John', 'Joel', 'James', 'Jimmy', 'Jackson', 'Jillian', 'Julie', 'Devin',
+     'John', 'Joel', 'James', 'Jimmy', 'Jackson', 'Jillian', 'Julie', 'Devin',
+     'John', 'Joel', 'James', 'Jimmy', 'Jackson', 'Jillian', 'Julie', 'Devin',
+    ];
     this.state = {
-      isLoading : true,
-      dataSource : new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1 !== row2
-      }),
-      canLoadMoreContent : true
-    };
-  };
-
-  fetchData() {
-    let REQUEST_URL = "http://espm-service.espm-supermedia.com/feed";
-    fetch(REQUEST_URL)
-      .then((response) => response.json())
-      .then((responseData) => {
-        let feeds = responseData.filter((feed) => {
-          if (feed.thumb) return feed;
-        })
-        this.setState({
-          isLoading : false,
-          dataSource : this.state.dataSource.cloneWithRows(feeds)
-
-        });
-      }).done();
+      dataSource: ds.cloneWithRows(feeds),
+      canLoadMoreContent : true,
+      feeds : feeds
+    }
   };
 
   loadMoreContentAsync = async () => {
-   console.log("here");
-   
- }
+     let additionFeeds =  [
+      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
+     ];
+     let newfeed = this.state.feeds.concat(additionFeeds);
+     console.log("new feed " , newfeed);
+     this.setState({
+       dataSource: this.state.dataSource.cloneWithRows(newfeed),
+       feeds : newfeed
+     });
+
+  }
 
   genRows(pressData: {[key: number]: boolean}): Array<string> {
     let data = [];
@@ -105,11 +102,17 @@ export default class InitialScreen extends Component {
       return this.renderLoadingView();
     };
 
+    if(this.state.feeds.length > 50) {
+      this.setState({
+        canLoadMoreContent : false
+      });
+    }
+
     return (
       <ListView
              renderScrollComponent={props => <InfiniteScrollView {...props} />}
              dataSource={this.state.dataSource}
-             renderRow={this.renderRow}
+             renderRow={(rowData) => <Text>{rowData}</Text>}
              canLoadMore={this.state.canLoadMoreContent}
              onLoadMoreAsync={this.loadMoreContentAsync}
            />
