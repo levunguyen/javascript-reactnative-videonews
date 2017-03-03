@@ -21,9 +21,9 @@ export default class InitialScreen extends Component {
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     let feeds = [
      'John', 'Joel', 'James', 'Jimmy', 'Jackson', 'Jillian', 'Julie', 'Devin',
-     'John', 'Joel', 'James', 'Jimmy', 'Jackson', 'Jillian', 'Julie', 'Devin',
-     'John', 'Joel', 'James', 'Jimmy', 'Jackson', 'Jillian', 'Julie', 'Devin',
-     'John', 'Joel', 'James', 'Jimmy', 'Jackson', 'Jillian', 'Julie', 'Devin',
+     'Kevi', 'Jan', 'Fed', 'March', 'April', 'May', 'June', 'July',
+     'Aug', 'Sept', 'Oct', 'Nov', 'Dec', 'Monday', 'Tues', 'Wed',
+     'Thurs', 'Friday', 'Sat', 'Sun', 'Le', 'Vu', 'Nguyen', 'Arch',
     ];
     this.state = {
       dataSource: ds.cloneWithRows(feeds),
@@ -32,7 +32,38 @@ export default class InitialScreen extends Component {
     }
   };
 
+  loadFeedsFirstTime() {
+    const API_URL = 'http://espm-service.espm-supermedia.com/feed';
+    var data = {
+      method : 'POST',
+      headers: {
+         'Accept': 'application/json',
+         'Content-Type': 'application/json',
+         'Origin': '',
+         'Host': 'spm-service.espm-supermedia.com'
+       },
+       body: JSON.stringify({
+         'client_id': '(API KEY)',
+         'client_secret': '(API SECRET)',
+         'grant_type': 'client_credentials'
+       })
+    };
+
+    fetch(API_URL,data).then(function(res){
+
+    })
+    .then(function(resJson){
+        //set state here
+        let feeds = responseData.filter((feed) => {
+           if (feed.thumb) return feed;
+        });
+    })
+    .done();
+
+  }
+
   loadMoreContentAsync = async () => {
+    //call api moi o day
      let additionFeeds =  [
       'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
      ];
