@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 export default class InitialScreen extends Component {
 
@@ -19,60 +20,85 @@ export default class InitialScreen extends Component {
     super(props);
 
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-    let feeds = [
-     'John', 'Joel', 'James', 'Jimmy', 'Jackson', 'Jillian', 'Julie', 'Devin',
-     'Kevi', 'Jan', 'Fed', 'March', 'April', 'May', 'June', 'July',
-     'Aug', 'Sept', 'Oct', 'Nov', 'Dec', 'Monday', 'Tues', 'Wed',
-     'Thurs', 'Friday', 'Sat', 'Sun', 'Le', 'Vu', 'Nguyen', 'Arch',
-    ];
+    let feeds =[];
     this.state = {
+      isLoading : true,
       dataSource: ds.cloneWithRows(feeds),
       canLoadMoreContent : true,
-      feeds : feeds
+      feeds : feeds,
+      feedPage : 0,
+      visible: false
     }
+    this.loadFeedsFirstTime();
+
   };
 
   loadFeedsFirstTime() {
-    const API_URL = 'http://espm-service.espm-supermedia.com/feed';
+    const API_URL = 'http://espm-service.espm-supermedia.com/feed/find';
     var data = {
       method : 'POST',
       headers: {
          'Accept': 'application/json',
          'Content-Type': 'application/json',
          'Origin': '',
-         'Host': 'spm-service.espm-supermedia.com'
+         'Host': 'espm-service.espm-supermedia.com'
        },
        body: JSON.stringify({
-         'client_id': '(API KEY)',
-         'client_secret': '(API SECRET)',
-         'grant_type': 'client_credentials'
+         "where":{"status":0,"type":1},"limit":7,"sort":"points DESC"
        })
     };
 
-    fetch(API_URL,data).then(function(res){
-
-    })
-    .then(function(resJson){
-        //set state here
+    fetch(API_URL,data)
+    .then((response) => response.json())
+    .then((responseData) => {
         let feeds = responseData.filter((feed) => {
-           if (feed.thumb) return feed;
-        });
+            return feed;
+         })
+         console.log("data :",feeds);
+         this.setState({
+           isLoading : false,
+           dataSource: this.state.dataSource.cloneWithRows(feeds),
+           feeds : feeds,
+           feedPage : 1
+         });
     })
     .done();
 
   }
 
   loadMoreContentAsync = async () => {
-    //call api moi o day
-     let additionFeeds =  [
-      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
-     ];
-     let newfeed = this.state.feeds.concat(additionFeeds);
-     console.log("new feed " , newfeed);
      this.setState({
-       dataSource: this.state.dataSource.cloneWithRows(newfeed),
-       feeds : newfeed
+       isLoading : true
      });
+     const API_URL = 'http://espm-service.espm-supermedia.com/feed/find';
+     let data = {
+       method : 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Origin': '',
+          'Host': 'espm-service.espm-supermedia.com'
+        },
+        body: JSON.stringify({
+          "where":{"type":1},"limit":7,"skip":this.state.feedPage*7,"sort":"points DESC"
+        })
+     };
+
+     fetch(API_URL,data)
+     .then((response) => response.json())
+     .then((responseData) => {
+         let newfeeds = responseData.filter((feed) => {
+             return feed;
+          })
+          let totalFeed = this.state.feeds.concat(newfeeds);
+          this.setState({
+            isLoading : false,
+            dataSource: this.state.dataSource.cloneWithRows(totalFeed),
+            feeds : totalFeed,
+            feedPage : this.state.feedPage + 1
+          });
+     })
+     .done();
 
   }
 
@@ -92,8 +118,8 @@ export default class InitialScreen extends Component {
           <View style={styles.initview.row}>
             <Image style={styles.initview.thumb} source={{uri: feed.thumb}} />
             <View style={styles.initview.text}>
-              <Text style={styles.initview.title}>{feed.source.name}</Text>
-              <Text style={styles.initview.description}>{feed.description}</Text>
+
+              <Text style={styles.initview.description}>{feed.title}</Text>
             </View>
           </View>
         </View>
@@ -140,13 +166,16 @@ export default class InitialScreen extends Component {
     }
 
     return (
-      <ListView
+      <View>
+          <ListView
              renderScrollComponent={props => <InfiniteScrollView {...props} />}
              dataSource={this.state.dataSource}
-             renderRow={(rowData) => <Text>{rowData}</Text>}
+             renderRow={(this.renderRow.bind(this))}
              canLoadMore={this.state.canLoadMoreContent}
              onLoadMoreAsync={this.loadMoreContentAsync}
            />
+
+      </View>
     );
   }
 }
