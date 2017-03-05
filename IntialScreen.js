@@ -13,12 +13,13 @@ import {
 
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
 import Spinner from 'react-native-loading-spinner-overlay';
+import TimerMixin from 'react-timer-mixin';
 
 export default class InitialScreen extends Component {
 
   constructor(props) {
     super(props);
-
+    console.log("contructor is called");
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     let feeds =[];
     this.state = {
@@ -29,9 +30,23 @@ export default class InitialScreen extends Component {
       feedPage : 0,
       visible: false
     }
-    this.loadFeedsFirstTime();
-
+    //this.loadMoreContentAsync.binding(this);
+    this.loadMoreContentAsync = this.loadMoreContentAsync.bind(this);
   };
+
+  componentWillMount() {
+    console.log("component will mount ...");
+
+  }
+
+  componentDidMount() {
+    console.log("component did mount ...");
+      this.loadFeedsFirstTime();
+  }
+
+  componentWillUnmount() {
+    console.log("component un mount ...");
+  }
 
   loadFeedsFirstTime() {
     const API_URL = 'http://espm-service.espm-supermedia.com/feed/find';
@@ -54,7 +69,7 @@ export default class InitialScreen extends Component {
         let feeds = responseData.filter((feed) => {
             return feed;
          })
-         console.log("data :",feeds);
+         console.log("first time data :",feeds);
          this.setState({
            isLoading : false,
            dataSource: this.state.dataSource.cloneWithRows(feeds),
@@ -66,10 +81,17 @@ export default class InitialScreen extends Component {
 
   }
 
-  loadMoreContentAsync = async () => {
-     this.setState({
-       isLoading : true
-     });
+  loadMoreContentAsync () {
+    console.log("load more ...");
+    /*TimerMixin.setTimeout(
+      () => {
+        this.setState({
+          isLoading : true
+        });
+       },
+      1000
+    );*/
+
      const API_URL = 'http://espm-service.espm-supermedia.com/feed/find';
      let data = {
        method : 'POST',
@@ -87,28 +109,26 @@ export default class InitialScreen extends Component {
      fetch(API_URL,data)
      .then((response) => response.json())
      .then((responseData) => {
+       console.log("get feeds load more ...")
          let newfeeds = responseData.filter((feed) => {
              return feed;
           })
           let totalFeed = this.state.feeds.concat(newfeeds);
-          this.setState({
+          /*this.setState({
             isLoading : false,
             dataSource: this.state.dataSource.cloneWithRows(totalFeed),
             feeds : totalFeed,
             feedPage : this.state.feedPage + 1
+          });*/
+          this.setState({
+            dataSource: this.state.dataSource.cloneWithRows(totalFeed),
+            feeds : totalFeed,
           });
      })
      .done();
 
   }
 
-  genRows(pressData: {[key: number]: boolean}): Array<string> {
-    let data = [];
-    for (let ii=0; ii < 100; ii++) {
-      data.push('Row' + ii);
-    }
-    return data;
-  };
   renderRow(feed, sectionID: number, rowID: number, highlightRow : (sectionID: number, rowID: number) => void) {
     return (
       <TouchableHighlight onPress={() => {
@@ -145,8 +165,6 @@ export default class InitialScreen extends Component {
     )
   };
 
-
-
   render() {
     const rightButtonConfig = {
       title: 'Forward',
@@ -159,7 +177,7 @@ export default class InitialScreen extends Component {
       return this.renderLoadingView();
     };
 
-    if(this.state.feeds.length > 50) {
+    if(this.state.feeds.length > 100) {
       this.setState({
         canLoadMoreContent : false
       });
