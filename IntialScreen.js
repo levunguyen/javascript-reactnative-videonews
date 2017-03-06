@@ -30,8 +30,7 @@ export default class InitialScreen extends Component {
       feedPage : 0,
       visible: false
     }
-    //this.loadMoreContentAsync.binding(this);
-    this.loadMoreContentAsync = this.loadMoreContentAsync.bind(this);
+
   };
 
   componentWillMount() {
@@ -177,11 +176,7 @@ export default class InitialScreen extends Component {
       return this.renderLoadingView();
     };
 
-    if(this.state.feeds.length > 100) {
-      this.setState({
-        canLoadMoreContent : false
-      });
-    }
+  
 
     return (
       <View>
@@ -190,7 +185,7 @@ export default class InitialScreen extends Component {
              dataSource={this.state.dataSource}
              renderRow={(this.renderRow.bind(this))}
              canLoadMore={this.state.canLoadMoreContent}
-             onLoadMoreAsync={this.loadMoreContentAsync}
+             onLoadMoreAsync={this.loadMoreContentAsync.bind(this)}
            />
 
       </View>
