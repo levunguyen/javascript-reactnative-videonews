@@ -7,6 +7,10 @@ import {
 
 
 export default class CustomScreen extends Component {
+  constructor(props) {
+        super(props);
+        console.log("CustomScreen contructor ", this.props.feedId);
+    }
   render() {
     const leftButtonConfig = {
       title: 'Back',
@@ -18,6 +22,7 @@ export default class CustomScreen extends Component {
         <NavigationBar
           title={{ title: 'Custom screen', }}
           leftButton={leftButtonConfig} />
+          <Text>{this.props.name.title}</Text>
       </View>
     );
   }

@@ -132,12 +132,21 @@ export default class InitialScreen extends Component {
     return (
       <TouchableHighlight onPress={() => {
           highlightRow(sectionID, rowID);
+          this.props.navigator.push({
+                name: 'CustomScreen', // Matches route.name
+                passProps: {
+                    name: feed
+                }
+            })
+
         }}>
+
+
+
         <View>
           <View style={styles.initview.row}>
             <Image style={styles.initview.thumb} source={{uri: feed.thumb}} />
             <View style={styles.initview.text}>
-
               <Text style={styles.initview.description}>{feed.title}</Text>
             </View>
           </View>
@@ -165,20 +174,13 @@ export default class InitialScreen extends Component {
   };
 
   render() {
-    const rightButtonConfig = {
-      title: 'Forward',
-      handler: () => this.props.navigator.push({
-        component: CustomScreen,
-      }),
-    };
 
     if(this.state.isLoading) {
       return this.renderLoadingView();
     };
 
-  
-
     return (
+
       <View>
           <ListView
              renderScrollComponent={props => <InfiniteScrollView {...props} />}

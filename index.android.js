@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import styles from  './style';
 import NavigationBar from 'react-native-navbar';
-import IntialScreen from './IntialScreen'
+import IntialScreen from './IntialScreen';
+import CustomScreen from './CustomScreen';
 import {
   AppRegistry,
   Text,
@@ -11,11 +12,18 @@ import {
 } from 'react-native';
 
 
-function renderScene(route, navigator) {
-  return <route.component route={route} navigator={navigator} />;
-}
+
 
 export default class AwesomeProject extends Component {
+
+  renderScene(route, navigator) {
+     if(route.name == 'IntialScreen') {
+       return <IntialScreen navigator={navigator} {...route.passProps} />
+     }
+     if(route.name == 'CustomScreen') {
+       return <CustomScreen navigator={navigator} {...route.passProps} />
+     }
+  }
 
   render() {
         const initialRoute = {
@@ -23,7 +31,7 @@ export default class AwesomeProject extends Component {
         }
         return (
             <View style={{ flex: 1, backgroundColor: '#ff9900', }}>
-              <Navigator initialRoute={initialRoute} renderScene={renderScene}/>
+              <Navigator initialRoute={{name:'IntialScreen'}} renderScene={this.renderScene} />
 
             </View>
         );
