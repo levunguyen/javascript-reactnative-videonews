@@ -22,7 +22,7 @@ export default class CustomScreen extends Component {
         <NavigationBar
           title={{ title: 'Custom screen', }}
           leftButton={leftButtonConfig} />
-          <Text>{this.props.name}</Text>
+          <Text>{this.props.name.title}</Text>
       </View>
     );
   }

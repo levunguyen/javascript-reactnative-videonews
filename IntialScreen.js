@@ -130,12 +130,12 @@ export default class InitialScreen extends Component {
 
   renderRow(feed, sectionID: number, rowID: number, highlightRow : (sectionID: number, rowID: number) => void) {
     return (
-      <TouchableHighlight onPress={(feed) => {
+      <TouchableHighlight onPress={() => {
           highlightRow(sectionID, rowID);
           this.props.navigator.push({
                 name: 'CustomScreen', // Matches route.name
                 passProps: {
-                    name: "feed.title"
+                    name: feed
                 }
             })
 
