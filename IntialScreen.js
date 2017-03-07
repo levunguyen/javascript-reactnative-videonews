@@ -11,51 +11,123 @@ import {
   ActivityIndicator
 } from 'react-native';
 
+import InfiniteScrollView from 'react-native-infinite-scroll-view';
+import Spinner from 'react-native-loading-spinner-overlay';
 import TimerMixin from 'react-timer-mixin';
-import RefreshInfiniteListView from '@remobile/react-native-refresh-infinite-listview';
 
 export default class InitialScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.fetchData();
+    console.log("contructor is called");
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    let feeds =[];
     this.state = {
       isLoading : true,
-      dataSource : new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1 !== row2
-      })
-    };
-  };
-
-  fetchData() {
-    let REQUEST_URL = "http://espm-service.espm-supermedia.com/feed";
-    fetch(REQUEST_URL)
-      .then((response) => response.json())
-      .then((responseData) => {
-        let feeds = responseData.filter((feed) => {
-          if (feed.thumb) return feed;
-        })
-        this.setState({
-          isLoading : false,
-          dataSource : this.state.dataSource.cloneWithRows(feeds)
-        });
-      }).done();
-  };
-
-  onRefresh() {
-        this.fetchData;
-      /*  this.setTimeout(()=>{
-            this.list.hideHeader();
-        }, 1000); */
-  };
-
-  genRows(pressData: {[key: number]: boolean}): Array<string> {
-    let data = [];
-    for (let ii=0; ii < 100; ii++) {
-      data.push('Row' + ii);
+      dataSource: ds.cloneWithRows(feeds),
+      canLoadMoreContent : true,
+      feeds : feeds,
+      feedPage : 0,
+      visible: false
     }
-    return data;
+
   };
+
+  componentWillMount() {
+    console.log("component will mount ...");
+
+  }
+
+  componentDidMount() {
+    console.log("component did mount ...");
+      this.loadFeedsFirstTime();
+  }
+
+  componentWillUnmount() {
+    console.log("component un mount ...");
+  }
+
+  loadFeedsFirstTime() {
+    const API_URL = 'http://espm-service.espm-supermedia.com/feed/find';
+    var data = {
+      method : 'POST',
+      headers: {
+         'Accept': 'application/json',
+         'Content-Type': 'application/json',
+         'Origin': '',
+         'Host': 'espm-service.espm-supermedia.com'
+       },
+       body: JSON.stringify({
+         "where":{"status":0,"type":1},"limit":7,"sort":"points DESC"
+       })
+    };
+
+    fetch(API_URL,data)
+    .then((response) => response.json())
+    .then((responseData) => {
+        let feeds = responseData.filter((feed) => {
+            return feed;
+         })
+         console.log("first time data :",feeds);
+         this.setState({
+           isLoading : false,
+           dataSource: this.state.dataSource.cloneWithRows(feeds),
+           feeds : feeds,
+           feedPage : 1
+         });
+    })
+    .done();
+
+  }
+
+  loadMoreContentAsync () {
+    console.log("load more ...");
+    /*TimerMixin.setTimeout(
+      () => {
+        this.setState({
+          isLoading : true
+        });
+       },
+      1000
+    );*/
+
+     const API_URL = 'http://espm-service.espm-supermedia.com/feed/find';
+     let data = {
+       method : 'POST',
+       headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Origin': '',
+          'Host': 'espm-service.espm-supermedia.com'
+        },
+        body: JSON.stringify({
+          "where":{"type":1},"limit":7,"skip":this.state.feedPage*7,"sort":"points DESC"
+        })
+     };
+
+     fetch(API_URL,data)
+     .then((response) => response.json())
+     .then((responseData) => {
+       console.log("get feeds load more ...")
+         let newfeeds = responseData.filter((feed) => {
+             return feed;
+          })
+          let totalFeed = this.state.feeds.concat(newfeeds);
+          /*this.setState({
+            isLoading : false,
+            dataSource: this.state.dataSource.cloneWithRows(totalFeed),
+            feeds : totalFeed,
+            feedPage : this.state.feedPage + 1
+          });*/
+          this.setState({
+            dataSource: this.state.dataSource.cloneWithRows(totalFeed),
+            feeds : totalFeed,
+          });
+     })
+     .done();
+
+  }
+
   renderRow(feed, sectionID: number, rowID: number, highlightRow : (sectionID: number, rowID: number) => void) {
     return (
       <TouchableHighlight onPress={() => {
@@ -65,8 +137,8 @@ export default class InitialScreen extends Component {
           <View style={styles.initview.row}>
             <Image style={styles.initview.thumb} source={{uri: feed.thumb}} />
             <View style={styles.initview.text}>
-              <Text style={styles.initview.title}>{feed.source.name}</Text>
-              <Text style={styles.initview.description}>{feed.description}</Text>
+
+              <Text style={styles.initview.description}>{feed.title}</Text>
             </View>
           </View>
         </View>
@@ -92,18 +164,6 @@ export default class InitialScreen extends Component {
     )
   };
 
-
-  onInfinite() {
-          this.fetchData();
-        this.setTimeout(()=>{
-            this.list.hideFooter();
-
-        }, 1000);
-  };
-  loadedAllData() {
-      return this.data.index >= this.data.maxIndex||this.data.index===0;
-  };
-
   render() {
     const rightButtonConfig = {
       title: 'Forward',
@@ -116,35 +176,19 @@ export default class InitialScreen extends Component {
       return this.renderLoadingView();
     };
 
+  
+
     return (
-  /*    <View style={{ flex: 1, backgroundColor: '#ff9900', }}>
-        <NavigationBar
-          title={{ title: 'Title', }}
-          rightButton={rightButtonConfig} />
-      /*  <ListView
-          dataSource={this.state.dataSource}
-          renderRow={(this.renderRow.bind(this))}
-          renderSeparator={this.renderSeparator}
-        /> */
+      <View>
+          <ListView
+             renderScrollComponent={props => <InfiniteScrollView {...props} />}
+             dataSource={this.state.dataSource}
+             renderRow={(this.renderRow.bind(this))}
+             canLoadMore={this.state.canLoadMoreContent}
+             onLoadMoreAsync={this.loadMoreContentAsync.bind(this)}
+           />
 
-        <View style={{flex:1}}>
-                <View style={{height:20}} />
-                <RefreshInfiniteListView
-                    ref = {(list) => {this.list= list}}
-                    dataSource={this.state.dataSource}
-                    renderRow={this.renderRow}
-                    renderSeparator={this.renderSeparator}
-                    loadedAllData={this.loadedAllData}
-                    initialListSize={30}
-                    scrollEventThrottle={10}
-                    style={{backgroundColor:'transparent'/*,top:100, left:10, width:200, height:300, position:'absolute'*/}}
-                    onRefresh = {this.onRefresh}
-                    onInfinite = {this.onInfinite}
-                    >
-                </RefreshInfiniteListView>
-        </View>
-
-    /*  </View>*/
+      </View>
     );
   }
 }
