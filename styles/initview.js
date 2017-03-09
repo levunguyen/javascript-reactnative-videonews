@@ -38,5 +38,11 @@ export default StyleSheet.create({
   description: {
     fontFamily: 'Cochin',
     fontSize: 8
+  },
+  button: {
+    minHeight: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 30
   }
 });

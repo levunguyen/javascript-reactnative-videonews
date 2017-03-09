@@ -8,7 +8,8 @@ import {
   Text,
   Image,
   TouchableHighlight,
-  ActivityIndicator
+  ActivityIndicator,
+  AsyncStorage
 } from 'react-native';
 
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
@@ -40,7 +41,7 @@ export default class InitialScreen extends Component {
 
   componentDidMount() {
     console.log("component did mount ...");
-      this.loadFeedsFirstTime();
+    this.loadFeedsFirstTime();
   }
 
   componentWillUnmount() {
@@ -138,11 +139,7 @@ export default class InitialScreen extends Component {
                     name: feed
                 }
             })
-
         }}>
-
-
-
         <View>
           <View style={styles.initview.row}>
             <Image style={styles.initview.thumb} source={{uri: feed.thumb}} />
