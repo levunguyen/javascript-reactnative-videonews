@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, ListItem } from 'native-base';
-import { Drawer } from 'native-base';
-import ControlPanel from './ControlPanel'
 import NavigationBar from 'react-native-navbar';
 import CustomScreen from './CustomScreen';
 import styles from  './style';
