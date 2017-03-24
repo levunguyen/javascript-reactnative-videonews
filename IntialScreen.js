@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, ListItem } from 'native-base';
 import NavigationBar from 'react-native-navbar';
 import CustomScreen from './CustomScreen';
 import styles from  './style';
@@ -9,7 +10,8 @@ import {
   Image,
   TouchableHighlight,
   ActivityIndicator,
-  AsyncStorage
+  AsyncStorage,
+  DrawerLayoutAndroid
 } from 'react-native';
 
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
@@ -174,20 +176,56 @@ export default class InitialScreen extends Component {
 
     if(this.state.isLoading) {
       return this.renderLoadingView();
-    };
-
+    }
     return (
+        <DrawerLayoutAndroid
+          ref="drawer1"
+          drawerWidth={300}
+          drawerPosition={DrawerLayoutAndroid.positions.Left}
+          renderNavigationView={() => this.showMenu()}>
+            <Container>
+              <Header>
+                <Left>
+                  <Button transparent onPress={()=>this.refs.drawer1.openDrawer()}>
+                    <Icon name='menu' />
+                  </Button>
+                </Left>
+                <Body>
+                  <Title>Header</Title>
+                </Body>
+                <Right />
+              </Header>
+              <ListView
+                 renderScrollComponent={props => <InfiniteScrollView {...props} />}
+                 dataSource={this.state.dataSource}
+                 renderRow={(this.renderRow.bind(this))}
+                 canLoadMore={this.state.canLoadMoreContent}
+                 onLoadMoreAsync={this.loadMoreContentAsync.bind(this)}
+               />
+            </Container>
 
-      <View>
-          <ListView
-             renderScrollComponent={props => <InfiniteScrollView {...props} />}
-             dataSource={this.state.dataSource}
-             renderRow={(this.renderRow.bind(this))}
-             canLoadMore={this.state.canLoadMoreContent}
-             onLoadMoreAsync={this.loadMoreContentAsync.bind(this)}
-           />
-
-      </View>
+        </DrawerLayoutAndroid>
     );
+
+  }
+  showMenu(){
+    return(
+      <Container>
+        <Content>
+          <ListItem>
+            <Text style={{fontWeight:'bold'}}>Home</Text>
+            <Icon name="home" style={{position:'absolute', right: 10, top: 10, color:'#0000CD'}}/>
+          </ListItem>
+          <ListItem>
+            <Text style={{fontWeight:'bold'}}>Favourite</Text>
+            <Icon name="heart" style={{position:'absolute', right: 10, top: 10, color:'#0000CD'}}/>
+          </ListItem>
+          <ListItem>
+            <Text style={{fontWeight:'bold'}}>Help</Text>
+            <Icon name="help" style={{position:'absolute', right: 10, top: 10, color:'#0000CD'}}/>
+          </ListItem>
+        </Content>
+      </Container>
+    )
   }
 }

@@ -10,7 +10,7 @@ import {
   StatusBar,
   Navigator
 } from 'react-native';
-
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon } from 'native-base';
 
 
 
@@ -30,10 +30,10 @@ export default class AwesomeProject extends Component {
           component : IntialScreen
         }
         return (
-            <View style={{ flex: 1, backgroundColor: '#ff9900', }}>
+            <Container style={{ flex: 1, backgroundColor: '#ff9900', }}>
               <Navigator initialRoute={{name:'IntialScreen'}} renderScene={this.renderScene} />
 
-            </View>
+            </Container>
         );
 
   }
